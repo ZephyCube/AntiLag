@@ -8,7 +8,7 @@ const on = defineModules("wl", "zc:lagmodules", "Lag", [
     { key: "alerts", label: "low-TPS chat alert to players with the zc:lag_alert tag" },
     { key: "mobcap", label: "per-chunk mob cap (stops piglin/mob farms from lagging the server)" },
     { key: "autoclear", label: "automatic mob and item clear on sustained low TPS (manual /zc:lag clear still works)" },
-    { key: "antiredstone", label: "removes redstone lines longer than 30 blocks near players (every 5 s); players with the bypass_redstone tag are skipped" },
+    { key: "antiredstone", label: "removes redstone lines longer than 30 blocks near players (every 5 s); players with the zc:redstone_bypass tag are skipped" },
 ]);
 
 // Bypass/alert tags: the single tag (e.g. zc:border_bypass) or the AdminTools bitmask tag zc:p.<hex> (bit 10 = lag_alert).
@@ -375,5 +375,5 @@ function doClear() {
     }, 100);
 }
 
-// Anti-redstone (merged from Utility Anti Redstone by FEBERNAISYSTUDIOS). Bypass: tag bypass_redstone, zc:redstone_bypass or bit 14 of zc:p.<hex>.
-startAntiRedstone(() => on("antiredstone"), (p) => { try { return p.hasTag("bypass_redstone") || hasPermTag(p, "redstone_bypass", 14); } catch { return false; } });
+// Anti-redstone (merged from Utility Anti Redstone by FEBERNAISYSTUDIOS). Bypass: tag zc:redstone_bypass or bit 14 of zc:p.<hex>.
+startAntiRedstone(() => on("antiredstone"), (p) => { try { return hasPermTag(p, "redstone_bypass", 14); } catch { return false; } });

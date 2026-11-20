@@ -1,4 +1,4 @@
-# ZephyCube Lag Finder 1.4.0
+# ZephyCube Lag Finder 1.4.4
 
 Finds laggy chunks, caps mobs per chunk, clears mobs and items on low TPS and removes over-long redstone lines. TPS is measured from real time.
 
@@ -29,7 +29,7 @@ Never cleared: players, thrown tridents, villagers, zombie villagers, wandering 
 | --- | --- | --- |
 | `zc:lag_alert` | player | Receives low-TPS and mob-cap alerts (also in the AdminTools bitmask `zc:p.<hex>`, bit 10) |
 | `zc:keep` | mob | Never removed by the mob cap |
-| `bypass_redstone` or `zc:redstone_bypass` | player | Redstone lines near this player are not removed (also in the AdminTools bitmask `zc:p.<hex>`, bit 14) |
+| `zc:redstone_bypass` | player | Redstone lines near this player are not removed (also in the AdminTools bitmask `zc:p.<hex>`, bit 14) |
 
 ## Storage
 World property `wl:modules`.
