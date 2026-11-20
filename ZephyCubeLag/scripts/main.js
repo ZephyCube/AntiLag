@@ -129,10 +129,10 @@ const avg = (a) => a.length ? a.reduce((s, v) => s + v, 0) / a.length : 20;
 
 system.beforeEvents.startup.subscribe((init) => {
     const reg = init.customCommandRegistry;
-    reg.registerEnum("zc:lagaction", ["tps", "list", "tp", "clear", "cancel"]);
+    reg.registerEnum("zc:lagaction", ["list", "tp", "clear", "cancel"]);
     reg.registerCommand({
         name: "zc:lag",
-        description: "Lag finder (no argument = tps): tps | list (scan chunks by entity load) | tp <n> (go to hotspot n) | clear (start the mob and item clear countdown) | cancel",
+        description: "Lag finder (no argument = TPS): list (scan chunks by entity load) | tp <n> (go to hotspot n) | clear (start the mob and item clear countdown) | cancel",
         permissionLevel: CommandPermissionLevel.GameDirectors,
         cheatsRequired: false,
         optionalParameters: [
@@ -140,7 +140,7 @@ system.beforeEvents.startup.subscribe((init) => {
             { name: "n", type: CustomCommandParamType.Integer }
         ]
     }, (origin, action, n) => {
-        if (action === undefined || action === null) action = "tps";
+        if (action === undefined || action === null) action = "tps"; // no argument: show TPS
         const p = origin.sourceEntity instanceof Player ? origin.sourceEntity : (origin.initiator instanceof Player ? origin.initiator : null);
         const ok = (m) => ({ status: CustomCommandStatus.Success, message: m });
         if (action === "tps") {
