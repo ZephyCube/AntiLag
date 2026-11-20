@@ -1,3 +1,4 @@
+import "./style.js";
 import { world, system, Player, CommandPermissionLevel, CustomCommandStatus, CustomCommandParamType } from '@minecraft/server';
 import { defineModules } from './modules.js';
 import { startAntiRedstone } from './antiredstone.js';
