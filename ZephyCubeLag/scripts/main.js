@@ -42,7 +42,7 @@ const AUTO = {
 };
 const ANIMALS = new Set(["minecraft:cow", "minecraft:pig", "minecraft:sheep", "minecraft:chicken", "minecraft:rabbit", "minecraft:goat",
     "minecraft:horse", "minecraft:donkey", "minecraft:mule", "minecraft:llama", "minecraft:mooshroom", "minecraft:camel"]);
-const NEVER_CLEAR = new Set(["minecraft:player", "minecraft:villager", "minecraft:villager_v2", "minecraft:zombie_villager", "minecraft:zombie_villager_v2",
+const NEVER_CLEAR = new Set(["minecraft:player", "minecraft:thrown_trident", "minecraft:villager", "minecraft:villager_v2", "minecraft:zombie_villager", "minecraft:zombie_villager_v2",
     "minecraft:wandering_trader", "minecraft:iron_golem", "minecraft:snow_golem", "minecraft:copper_golem", "minecraft:armor_stand",
     "minecraft:wither", "minecraft:ender_dragon", "minecraft:warden", "minecraft:elder_guardian", "minecraft:ender_crystal",
     "minecraft:bee", "minecraft:allay", "minecraft:leash_knot", "minecraft:painting", "minecraft:item_frame", "minecraft:glow_item_frame",
