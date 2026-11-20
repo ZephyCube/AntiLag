@@ -322,7 +322,7 @@ function doClear() {
     for (const dimId of DIMS) {
         let dim; try { dim = world.getDimension(dimId); } catch { continue; }
         if (AUTO.clearItems) {
-            try { for (const e of dim.getEntities({ type: "minecraft:item" })) { try { e.remove(); items++; } catch { } } } catch { }
+            try { for (const e of dim.getEntities({ type: "minecraft:item" })) { try { if (e.getComponent("minecraft:item")?.itemStack?.typeId === "minecraft:trident") continue; e.remove(); items++; } catch { } } } catch { }
         }
         if (!AUTO.clearMobs) continue;
         const animals = new Map();
