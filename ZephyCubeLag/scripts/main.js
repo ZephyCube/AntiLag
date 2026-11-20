@@ -12,8 +12,9 @@ const CAP = {
     enabled: true,
     everyTicks: 100,                 // check every 5 s
     maxRemovePerPass: 150,
+    radius: 9,                       // blocks: the cap applies to same-type mobs within this horizontal radius (about one chunk of area)
     alertCooldownMs: 5 * 60 * 1000,
-    // max of each type in one 16x16 chunk (all heights). Extra ones are removed without drops.
+    // max of each type within `radius` blocks (all heights), so farms on chunk corners count as one group. Extra ones are removed without drops.
     perType: {
         "minecraft:zombified_piglin": 20, "minecraft:piglin": 20, "minecraft:piglin_brute": 10,
         "minecraft:hoglin": 12, "minecraft:zoglin": 12,
@@ -197,47 +198,53 @@ function enforceCaps() {
     for (const dimId of DIMS) {
         let dim;
         try { dim = world.getDimension(dimId); } catch { continue; }
-        const groups = new Map(); // "type|cx|cz" -> entities
+        // Density cap: count same-type mobs within CAP.radius blocks of each mob instead of per 16x16 chunk, so a farm
+        // sitting on a chunk corner (split over 2-4 chunks) is capped the same as one inside a single chunk.
         for (const type of Object.keys(CAP.perType)) {
+            const cap = CAP.perType[type];
             let ents;
             try { ents = dim.getEntities({ type }); } catch { continue; }
-            if (ents.length <= CAP.perType[type]) continue;     // cheap exit: fewer than the cap in the whole dimension
+            if (ents.length <= cap) continue;                    // cheap exit: fewer than the cap in the whole dimension
+            const pts = [], cells = new Map();
             for (const e of ents) {
                 try {
                     const { x, z } = e.location;
-                    const k = type + "|" + Math.floor(x / 16) + "|" + Math.floor(z / 16);
-                    let g = groups.get(k); if (!g) { g = []; groups.set(k, g); }
-                    g.push(e);
+                    const p = { e, x, z };
+                    pts.push(p);
+                    const ck = Math.floor(x / 16) + "|" + Math.floor(z / 16);
+                    let c = cells.get(ck); if (!c) { c = []; cells.set(ck, c); }
+                    c.push(p);
                 } catch { }
             }
-        }
-        for (const [k, list] of groups) {
-            const [type, cx, cz] = k.split("|");
-            const cap = CAP.perType[type];
-            if (list.length <= cap) continue;
-            let over = list.length - cap, n = 0;
-            for (const e of list) {
-                if (over <= 0 || removed >= CAP.maxRemovePerPass) break;
-                if (keepEntity(e)) continue;
-                try { e.remove(); over--; n++; removed++; } catch { }
+            const r2 = CAP.radius * CAP.radius;
+            let n = 0, first = null;
+            for (const p of pts) {
+                if (removed >= CAP.maxRemovePerPass) break;
+                const cx = Math.floor(p.x / 16), cz = Math.floor(p.z / 16);
+                let count = 0;
+                for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+                    const c = cells.get((cx + dx) + "|" + (cz + dz)); if (!c) continue;
+                    for (const o of c) if (!o.gone && (o.x - p.x) ** 2 + (o.z - p.z) ** 2 <= r2) count++;
+                }
+                if (count <= cap || keepEntity(p.e)) continue;
+                try { p.e.remove(); p.gone = true; n++; removed++; if (!first) first = p; } catch { }
             }
-            if (n > 0) {
-                const kk = dimId + "|" + k, now = Date.now();
+            if (n > 0 && first) {
+                const kk = dimId + "|" + type + "|" + Math.floor(first.x / 32) + "|" + Math.floor(first.z / 32), now = Date.now();
                 if (now - (capAlerted.get(kk) ?? 0) > CAP.alertCooldownMs) {
                     capAlerted.set(kk, now);
                     let near = "nobody";
                     try {
-                        const loc = { x: Number(cx) * 16 + 8, y: 64, z: Number(cz) * 16 + 8 };
                         let bd = 96 * 96;
                         for (const pl of dim.getPlayers()) {
-                            const d = (pl.location.x - loc.x) ** 2 + (pl.location.z - loc.z) ** 2;
+                            const d = (pl.location.x - first.x) ** 2 + (pl.location.z - first.z) ** 2;
                             if (d < bd) { bd = d; near = pl.name; }
                         }
                     } catch { }
-                    const msg = `Mob cap: removed ${n} ${type.replace("minecraft:", "")} (had ${list.length}, cap ${cap}) in ${dimId.replace("minecraft:", "")} chunk ${Number(cx) * 16}, ${Number(cz) * 16} | nearest player: ${near}`;
+                    const msg = `Mob cap: removed ${n} ${type.replace("minecraft:", "")} (cap ${cap} within ${CAP.radius} blocks) in ${dimId.replace("minecraft:", "")} near ${Math.floor(first.x)}, ${Math.floor(first.z)} | nearest player: ${near}`;
                     console.warn(`[Lag] ${msg}`);
                     for (const p of world.getAllPlayers()) {
-                        try { if (p.hasTag(ALERT_TAG)) p.sendMessage(`§8[§bLag§8]§e ${msg}`); } catch { }
+                        try { if (p.hasTag(ALERT_TAG)) p.sendMessage(`\u00a78[\u00a7bLag\u00a78]\u00a7e ${msg}`); } catch { }
                     }
                 }
             }
