@@ -1,4 +1,21 @@
 import { world, system, Player, CommandPermissionLevel, CustomCommandStatus, CustomCommandParamType } from '@minecraft/server';
+import { defineModules } from './modules.js';
+
+// Modules (turn parts off with /zc:lagmodules <module> off):
+const on = defineModules("wl", "zc:lagmodules", "Lag", [
+    { key: "alerts", label: "low-TPS chat alert to players with the zc:lag_alert tag" },
+    { key: "mobcap", label: "per-chunk mob cap (stops piglin/mob farms from lagging the server)" },
+    { key: "autoclear", label: "automatic mob and item clear on sustained low TPS (manual /zc:lag clear still works)" },
+]);
+
+// Bypass/alert tags: the single tag (e.g. zc:border_bypass) or the AdminTools bitmask tag zc:p.<hex> (bit 10 = lag_alert).
+function hasPermTag(player, key, bit) {
+    if (player.hasTag("zc:" + key)) return true;
+    for (const t of player.getTags()) {
+        if (t.startsWith("zc:p.")) return ((parseInt(t.slice(5), 16) >> bit) & 1) === 1;
+    }
+    return false;
+}
 
 // ZephyCube Lag Finder. Bedrock scripts cannot read per-chunk tick time, so chunks are ranked by
 // what usually causes lag: entity load (weighted by type). TPS is measured from real time.
@@ -76,14 +93,14 @@ system.runInterval(() => {
     samples.push(tps);
     if (samples.length > 60) samples.shift();
     autoClearCheck(tps);
-    if (samples.length >= 5 && tps < LOW_TPS && now - lastAlert > ALERT_COOLDOWN_MS) {
+    if (on("alerts") && samples.length >= 5 && tps < LOW_TPS && now - lastAlert > ALERT_COOLDOWN_MS) {
         lastAlert = now;
         const res = scan();
         const ents = statsText();
         const top = res.slice(0, 3).map(h => `${h.dim.replace("minecraft:", "")} ${h.cx * 16 + 8}, ${h.cz * 16 + 8} (${h.count} ent)`).join(" | ");
         console.warn(`[Lag] TPS ${tps.toFixed(1)}. Entities: ${ents}. Top chunks: ${top}`);
         for (const p of world.getAllPlayers()) {
-            try { if (p.hasTag(ALERT_TAG)) p.sendMessage(`§8[§bLag§8]§c TPS ${tps.toFixed(1)}. §7Entities: ${ents}. Top chunks: ${top}. §8/zc:lag list`); } catch { }
+            try { if (hasPermTag(p, "lag_alert", 10)) p.sendMessage(`§8[§bLag§8]§c TPS ${tps.toFixed(1)}. §7Entities: ${ents}. Top chunks: ${top}. §8/zc:lag list`); } catch { }
         }
     }
 }, 20);
@@ -244,7 +261,7 @@ function enforceCaps() {
                     const msg = `Mob cap: removed ${n} ${type.replace("minecraft:", "")} (cap ${cap} within ${CAP.radius} blocks) in ${dimId.replace("minecraft:", "")} near ${Math.floor(first.x)}, ${Math.floor(first.z)} | nearest player: ${near}`;
                     console.warn(`[Lag] ${msg}`);
                     for (const p of world.getAllPlayers()) {
-                        try { if (p.hasTag(ALERT_TAG)) p.sendMessage(`\u00a78[\u00a7bLag\u00a78]\u00a7e ${msg}`); } catch { }
+                        try { if (hasPermTag(p, "lag_alert", 10)) p.sendMessage(`\u00a78[\u00a7bLag\u00a78]\u00a7e ${msg}`); } catch { }
                     }
                 }
             }
@@ -252,7 +269,7 @@ function enforceCaps() {
     }
     if (capAlerted.size > 500) capAlerted.clear();
 }
-system.runInterval(() => { try { enforceCaps(); } catch (e) { console.warn(`[Lag] cap error: ${e}`); } }, CAP.everyTicks);
+system.runInterval(() => { try { if (on("mobcap")) enforceCaps(); } catch (e) { console.warn(`[Lag] cap error: ${e}`); } }, CAP.everyTicks);
 
 // ---- auto clear implementation ----
 function startCountdown(why) {
@@ -276,7 +293,7 @@ function totalEntities() {
 }
 
 function autoClearCheck(tps) {
-    if (!AUTO.enabled) return;
+    if (!AUTO.enabled || !on("autoclear")) return;
     const now = Date.now();
     if (!clearAt) {
         if (now - lastClear < AUTO.cooldownMs || samples.length < AUTO.sustainSeconds) return;
