@@ -5,10 +5,10 @@ import { startAntiRedstone } from './antiredstone.js';
 
 // Modules (/zc:lagmodules opens a menu; /zc:lagmodules <module> off also works):
 const on = defineModules("wl", "zc:lagmodules", "AntiLag", [
-    { key: "alerts", label: "low-TPS chat alert to players with the zc:lag_alert tag" },
-    { key: "mobcap", label: "per-chunk mob cap (stops piglin/mob farms from lagging the server)" },
-    { key: "autoclear", label: "automatic mob and item clear on sustained low TPS (manual /zc:lag clear still works)" },
-    { key: "antiredstone", label: "removes redstone lines longer than 30 blocks near players (every 5 s)" },
+    { key: "alerts", name: "Low-TPS alerts", label: "low-TPS chat alert to players with the zc:lag_alert tag" },
+    { key: "mobcap", name: "Mob cap per chunk", label: "per-chunk mob cap (stops piglin/mob farms from lagging the server)" },
+    { key: "autoclear", name: "Automatic clear on low TPS", label: "automatic mob and item clear on sustained low TPS (manual /zc:lag clear still works)" },
+    { key: "antiredstone", name: "Anti-redstone (long lines)", label: "removes redstone lines longer than 30 blocks near players (every 5 s)" },
 ]);
 
 // Bypass/alert tags: the single tag (e.g. zc:border_bypass) or the AdminTools bitmask tag zc:p.<hex> (bit 10 = lag_alert).
