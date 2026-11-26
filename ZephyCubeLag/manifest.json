@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "ZephyCube Lag Finder",
+    "name": "ZephyCube AntiLag",
     "description": "Finds laggy chunks, caps mobs per chunk, clears mobs and items on low TPS, removes over-long redstone lines.",
     "uuid": "9e02619a-4b0f-5a68-9da0-2abd609fb08f",
     "version": [
       1,
-      4,
-      4
+      5,
+      0
     ],
     "min_engine_version": [
       1,
@@ -41,6 +41,10 @@
     {
       "module_name": "@minecraft/server",
       "version": "2.8.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
     }
   ]
 }
