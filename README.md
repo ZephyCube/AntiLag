@@ -1,6 +1,6 @@
 <p align="center"><img src="logo.png" alt="ZephyCube" width="160"></p>
 
-# ZephyCube AntiLag v1.5.0
+# ZephyCube AntiLag v1.5.1
 
 Finds laggy chunks, caps mobs per chunk, clears mobs and items on low TPS and removes over-long redstone lines. TPS is measured from real time.
 
@@ -9,7 +9,7 @@ Finds laggy chunks, caps mobs per chunk, clears mobs and items on low TPS and re
 
 ## Install
 
-Download `ZephyCubeLag-v1.5.0-BP.mcaddon` (behavior pack; this add-on has no resource pack) or `ZephyCubeLag-v1.5.0.mcpack` from the Releases page and open it. Or install by hand: copy the `ZephyCubeLag` folder into your world's `behavior_packs` folder and add its `uuid` and `version` (from `manifest.json`) to the world's `world_behavior_packs.json`. Needs `@minecraft/server` 2.8.0 and `@minecraft/server-ui` 2.0.0.
+Download `ZephyCubeAntiLag-v1.5.1-BP.mcaddon` (behavior pack; this add-on has no resource pack) or `ZephyCubeAntiLag-v1.5.1.mcpack` from the Releases page and open it. Or install by hand: copy the `ZephyCubeAntiLag` folder into your world's `behavior_packs` folder and add its `uuid` and `version` (from `manifest.json`) to the world's `world_behavior_packs.json`. Needs `@minecraft/server` 2.8.0 and `@minecraft/server-ui` 2.0.0.
 
 ## Features (modules)
 `/zc:lagmodules` opens a menu with a switch per module (from the console it lists them); `/zc:lagmodules <module> on|off` also works. Saved in the world.

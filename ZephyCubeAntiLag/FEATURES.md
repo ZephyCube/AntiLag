@@ -1,4 +1,4 @@
-# ZephyCube AntiLag 1.5.0
+# ZephyCube AntiLag 1.5.1
 
 Finds laggy chunks, caps mobs per chunk, clears mobs and items on low TPS and removes over-long redstone lines. TPS is measured from real time.
 
