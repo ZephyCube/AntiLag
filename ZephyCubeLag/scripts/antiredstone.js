@@ -39,8 +39,7 @@ function chainLength(start, dim) {
     return count;
 }
 
-function* checkNearPlayer(player, dim, hasBypass) {
-    if (hasBypass(player)) return;
+function* checkNearPlayer(player, dim) {
     const pos = player.location;
     let n = 0;
     for (let x = -NEAR_RANGE; x <= NEAR_RANGE; x++) {
@@ -78,8 +77,8 @@ function checkFarChunks(dim, players) {
 
 let running = false;
 
-/** isOn(): module toggle. hasBypass(player): true = this player's surroundings are not checked. */
-export function startAntiRedstone(isOn, hasBypass) {
+/** isOn(): module toggle. There is no bypass: every player's surroundings are checked. */
+export function startAntiRedstone(isOn) {
     function* sweep() {
         try {
             const dims = new Map();
@@ -87,7 +86,7 @@ export function startAntiRedstone(isOn, hasBypass) {
                 if (!p.isValid) continue;
                 if (!dims.has(p.dimension.id)) dims.set(p.dimension.id, { dim: p.dimension, players: [] });
                 dims.get(p.dimension.id).players.push(p);
-                yield* checkNearPlayer(p, p.dimension, hasBypass);
+                yield* checkNearPlayer(p, p.dimension);
             }
             for (const { dim, players } of dims.values()) checkFarChunks(dim, players);
         } catch { }
